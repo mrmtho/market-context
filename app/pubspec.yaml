@@ -1,0 +1,48 @@
+name: market_context
+description: "Market Context — Google Finance, but every price has context. A responsive Flutter web app that makes asset prices feel 3D."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_riverpod: ^2.6.1
+
+  # Routing
+  go_router: ^14.8.1
+
+  # Charts
+  fl_chart: ^0.69.2
+
+  # Typography
+  google_fonts: ^6.2.1
+
+  # Formatting
+  intl: ^0.20.2
+
+  # Local persistence
+  shared_preferences: ^2.5.2
+
+  # External links / share
+  url_launcher: ^6.3.1
+
+  # Utilities
+  collection: ^1.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
