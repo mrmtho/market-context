@@ -7,6 +7,7 @@ import '../models/enums.dart';
 import '../models/events.dart';
 import '../models/narrative.dart';
 import '../models/price_point.dart';
+import '../models/scenario.dart';
 
 /// Internal generation spec for a single asset.
 class _Spec {
@@ -435,6 +436,14 @@ class MockMarketData {
     return spec.currentPrice * spec.sharesOutB * 1e9;
   }
 
+  /// A fast synchronous quote (price + daily % change) for list rows.
+  ({double price, double changePercent}) quote(String id) {
+    final full = fullSeries(id);
+    final last = full.last.close;
+    final prev = full[full.length - 2].close;
+    return (price: last, changePercent: (last - prev) / prev * 100);
+  }
+
   // ---- Sentiment -----------------------------------------------------------
 
   List<SentimentSignal> sentimentAt(String id, DateTime date) {
@@ -762,5 +771,70 @@ class MockMarketData {
     }
     out.sort((a, b) => b.date.compareTo(a.date));
     return out;
+  }
+
+  // ---- Scenario explorer ---------------------------------------------------
+
+  /// A sensible base-case input derived from the asset's current profile.
+  ScenarioInput baseScenarioInput(String id) {
+    final spec = _spec(id);
+    final isEquity = spec.revenueTtmB > 0;
+    final val = valuationAt(id, now);
+    final pe = val.isEmpty
+        ? 18.0
+        : val.firstWhere((v) => v.id == 'pe', orElse: () => val.first).value;
+    return ScenarioInput(
+      revenueGrowth: isEquity ? (spec.revCagr * 100) : 8,
+      netMargin: isEquity ? (spec.netMargin * 100) : 0,
+      exitMultiple: isEquity ? pe.clamp(5, 60) : 18,
+      discountRate: 9,
+      years: 5,
+    );
+  }
+
+  List<ScenarioPreset> scenarioPresets(String id) {
+    final base = baseScenarioInput(id);
+    return [
+      ScenarioPreset('Base', 'Trend continues', base),
+      ScenarioPreset(
+        'Bull',
+        'Faster growth, multiple expansion',
+        base.copyWith(
+          revenueGrowth: base.revenueGrowth * 1.5 + 4,
+          netMargin: base.netMargin * 1.15,
+          exitMultiple: base.exitMultiple * 1.25,
+        ),
+      ),
+      ScenarioPreset(
+        'Bear',
+        'Slower growth, multiple compression',
+        base.copyWith(
+          revenueGrowth: base.revenueGrowth * 0.4,
+          netMargin: base.netMargin * 0.85,
+          exitMultiple: base.exitMultiple * 0.7,
+          discountRate: base.discountRate + 2,
+        ),
+      ),
+    ];
+  }
+
+  /// A deliberately simple, educational implied-value model (Feature 12).
+  ScenarioResult runScenario(String id, ScenarioInput input) {
+    final spec = _spec(id);
+    final price = spec.currentPrice;
+    final g = input.revenueGrowth / 100;
+    final r = input.discountRate / 100;
+    if (spec.revenueTtmB > 0) {
+      final eps = (spec.revenueTtmB * spec.netMargin) / spec.sharesOutB;
+      final marginAdj =
+          spec.netMargin > 0 ? (input.netMargin / 100) / spec.netMargin : 1.0;
+      final futureEps = eps * pow(1 + g, input.years) * marginAdj;
+      final terminal = futureEps * input.exitMultiple;
+      final implied = terminal / pow(1 + r, input.years);
+      return ScenarioResult(impliedPrice: implied, currentPrice: price);
+    }
+    final implied =
+        price * pow(1 + g, input.years) / pow(1 + r, input.years);
+    return ScenarioResult(impliedPrice: implied, currentPrice: price);
   }
 }

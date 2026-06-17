@@ -125,25 +125,28 @@ class _SearchOverlayState extends ConsumerState<SearchOverlay> {
           child: Focus(
             autofocus: true,
             onKeyEvent: (n, e) => _onKey(n, e, list),
-            child: GlassContainer(
-              padding: EdgeInsets.zero,
-              blur: 30,
-              fillOpacity: 0.06,
-              borderColor: AppColors.borderStrong,
-              borderRadius: isMobile
-                  ? BorderRadius.zero
-                  : const BorderRadius.all(AppRadii.lg),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildInput(isMobile),
-                  _buildFilters(filters),
-                  const Divider(height: 1),
-                  Flexible(
-                    child: _buildBody(results, list, recents),
-                  ),
-                  _buildFooter(),
-                ],
+            child: Material(
+              type: MaterialType.transparency,
+              child: GlassContainer(
+                padding: EdgeInsets.zero,
+                blur: 30,
+                fillOpacity: 0.06,
+                borderColor: AppColors.borderStrong,
+                borderRadius: isMobile
+                    ? BorderRadius.zero
+                    : const BorderRadius.all(AppRadii.lg),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildInput(isMobile),
+                    _buildFilters(filters),
+                    const Divider(height: 1),
+                    Flexible(
+                      child: _buildBody(results, list, recents),
+                    ),
+                    _buildFooter(),
+                  ],
+                ),
               ),
             ),
           ),
