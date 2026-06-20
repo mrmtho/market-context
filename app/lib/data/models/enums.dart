@@ -55,7 +55,11 @@ enum EventCategory {
   product('Product', Icons.rocket_launch_rounded, AppColors.accentViolet),
   analyst('Analyst', Icons.insights_rounded, AppColors.accentTeal),
   geopolitical('Geopolitical', Icons.travel_explore_rounded, AppColors.negative),
-  sector('Sector', Icons.category_rounded, AppColors.accentMagenta);
+  sector('Sector', Icons.category_rounded, AppColors.accentMagenta),
+  secFiling('SEC Filing', Icons.description_rounded, AppColors.neutral),
+  youtube('YouTube Analysis', Icons.play_circle_filled_rounded, AppColors.negative),
+  podcast('Podcast', Icons.mic_rounded, AppColors.accentTeal),
+  community('Discussion', Icons.forum_rounded, AppColors.accentMagenta);
 
   const EventCategory(this.label, this.icon, this.color);
   final String label;
@@ -102,3 +106,19 @@ enum DataDensity {
 /// Direction in which "higher is better" for a metric, so comparison coloring
 /// reflects meaning rather than raw sign.
 enum MetricPolarity { higherBetter, lowerBetter, neutral }
+
+/// Chart overlay background layers (Market Context v2).
+enum ChartOverlayType {
+  none('None', Icons.block_rounded),
+  eps('EPS', Icons.trending_up_rounded),
+  pe('P/E Ratio', Icons.speed_rounded),
+  revenue('Revenue', Icons.monetization_on_rounded),
+  inflation('Inflation', Icons.waves_rounded),
+  interestRate('Fed Rate', Icons.percent_rounded),
+  gdp('GDP Growth', Icons.show_chart_rounded),
+  unemployment('Unemployment', Icons.work_off_rounded);
+
+  const ChartOverlayType(this.label, this.icon);
+  final String label;
+  final IconData icon;
+}

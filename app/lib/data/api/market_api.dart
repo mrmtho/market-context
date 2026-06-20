@@ -113,6 +113,7 @@ class MockMarketApi implements MarketApi {
         volume: last.volume,
         marketOpen: _data.now.weekday <= 5,
         contextSummary: _data.snapshotAt(asset.id, _data.now).headline,
+        contextScore: (75.0 + (asset.accentSeed * 17) % 20),
         asOf: last.date,
         intradaySpark: spark,
       );

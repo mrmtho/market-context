@@ -68,6 +68,8 @@ void main() {
       final ov = await api.assetOverview('NVDA');
       expect(ov.asset.ticker, equals('NVDA'));
       expect(ov.price, isPositive);
+      expect(ov.contextScore, isPositive);
+      expect(ov.contextScore, lessThanOrEqualTo(100.0));
     });
   });
 

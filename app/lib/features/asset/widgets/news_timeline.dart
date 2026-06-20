@@ -203,6 +203,41 @@ class _EventRow extends StatelessWidget {
                             style: Theme.of(context).textTheme.labelSmall),
                       ],
                     ),
+                    if (event.category == EventCategory.youtube ||
+                        event.category == EventCategory.podcast ||
+                        event.category == EventCategory.secFiling) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Icon(
+                            event.category == EventCategory.youtube
+                                ? Icons.play_circle_filled_rounded
+                                : event.category == EventCategory.podcast
+                                    ? Icons.mic_rounded
+                                    : Icons.article_rounded,
+                            size: 15,
+                            color: event.category == EventCategory.secFiling
+                                ? AppColors.accentCyan
+                                : event.category.color,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            event.category == EventCategory.youtube
+                                ? 'Watch Video'
+                                : event.category == EventCategory.podcast
+                                    ? 'Listen to Podcast'
+                                    : 'View SEC Filing',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: event.category == EventCategory.secFiling
+                                  ? AppColors.accentCyan
+                                  : event.category.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

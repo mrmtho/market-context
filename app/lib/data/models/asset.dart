@@ -63,6 +63,7 @@ class AssetOverview {
     required this.volume,
     required this.marketOpen,
     required this.contextSummary,
+    required this.contextScore,
     required this.asOf,
     required this.intradaySpark,
   });
@@ -78,6 +79,7 @@ class AssetOverview {
   final double volume;
   final bool marketOpen;
   final String contextSummary;
+  final double contextScore;
   final DateTime asOf;
   final List<double> intradaySpark;
 }

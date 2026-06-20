@@ -67,7 +67,11 @@ class _AssetDashboardScreenState extends ConsumerState<AssetDashboardScreen> {
       ),
       data: (ov) {
         // Mark as recently viewed if it's on the watchlist.
-        ref.read(watchlistProvider.notifier).markViewed(ov.asset.id);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            ref.read(watchlistProvider.notifier).markViewed(ov.asset.id);
+          }
+        });
         return PageScaffold(
           child: _DashboardBody(overview: ov, currency: currency),
         );
@@ -123,39 +127,37 @@ class _DashboardBody extends ConsumerWidget {
         header,
         AppSpacing.vGapLg,
         if (isDesktop)
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: Column(
-                    children: [
-                      chart,
-                      AppSpacing.vGapLg,
-                      comparison,
-                      AppSpacing.vGapLg,
-                      samePrice,
-                      AppSpacing.vGapLg,
-                      news,
-                    ],
-                  ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 7,
+                child: Column(
+                  children: [
+                    chart,
+                    AppSpacing.vGapLg,
+                    comparison,
+                    AppSpacing.vGapLg,
+                    samePrice,
+                    AppSpacing.vGapLg,
+                    news,
+                  ],
                 ),
-                AppSpacing.hGapLg,
-                Expanded(
-                  flex: 5,
-                  child: Column(
-                    children: [
-                      contextPanel,
-                      AppSpacing.vGapLg,
-                      narrative,
-                      AppSpacing.vGapLg,
-                      scenario,
-                    ],
-                  ),
+              ),
+              AppSpacing.hGapLg,
+              Expanded(
+                flex: 5,
+                child: Column(
+                  children: [
+                    contextPanel,
+                    AppSpacing.vGapLg,
+                    narrative,
+                    AppSpacing.vGapLg,
+                    scenario,
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           )
         else
           Column(

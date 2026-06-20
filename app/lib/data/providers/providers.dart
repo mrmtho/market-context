@@ -49,14 +49,18 @@ final overviewProvider =
 final selectedRangeProvider =
     StateProvider.family<TimeRange, String>((ref, id) => TimeRange.y1);
 
-final priceHistoryProvider =
-    FutureProvider.family<PriceSeries, IdRange>((ref, arg) {
-  return ref.watch(marketRepositoryProvider).priceHistory(arg.id, arg.range);
-});
+/// The active background chart overlay layer, per asset.
+final chartOverlayProvider =
+    StateProvider.family<ChartOverlayType, String>((ref, id) => ChartOverlayType.none);
 
 /// The date the user has selected on the chart, per asset (null = latest).
 final selectedDateProvider =
     StateProvider.family<DateTime?, String>((ref, id) => null);
+
+final priceHistoryProvider =
+    FutureProvider.family<PriceSeries, IdRange>((ref, arg) {
+  return ref.watch(marketRepositoryProvider).priceHistory(arg.id, arg.range);
+});
 
 final snapshotProvider =
     FutureProvider.family<ContextSnapshot, IdDate>((ref, arg) {

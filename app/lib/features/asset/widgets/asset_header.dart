@@ -112,6 +112,8 @@ class AssetHeader extends ConsumerWidget {
                 priceBlock,
                 AppSpacing.vGapLg,
                 Align(alignment: Alignment.centerLeft, child: actions),
+                AppSpacing.vGapLg,
+                _AiSummaryCard(summary: overview.contextSummary),
               ],
             )
           : Column(
@@ -127,6 +129,8 @@ class AssetHeader extends ConsumerWidget {
                 ),
                 AppSpacing.vGapXl,
                 priceBlock,
+                AppSpacing.vGapLg,
+                _AiSummaryCard(summary: overview.contextSummary),
               ],
             ),
     );
@@ -161,6 +165,7 @@ class _PriceBlock extends StatelessWidget {
             ),
           ],
         ),
+        _ContextScoreStat(score: overview.contextScore),
         _MarketStatus(open: overview.marketOpen, asOf: overview.asOf),
         _MiniStat(label: 'Day Range',
             value: '${Fmt.compact(overview.dayLow)} – ${Fmt.compact(overview.dayHigh)}'),
@@ -168,6 +173,95 @@ class _PriceBlock extends StatelessWidget {
         _MiniStat(label: 'Market Cap', value: Fmt.compactCurrency(overview.marketCap, currency: currency)),
         _MiniStat(label: 'Volume', value: Fmt.compact(overview.volume)),
       ],
+    );
+  }
+}
+
+class _ContextScoreStat extends StatelessWidget {
+  const _ContextScoreStat({required this.score});
+  final double score;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.accentViolet.withValues(alpha: 0.1),
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.accentViolet.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('CONTEXT SCORE', style: AppTypography.eyebrow(color: AppColors.accentViolet)),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.hub_rounded, size: 16, color: AppColors.accentViolet),
+              const SizedBox(width: 6),
+              Text(
+                '${score.toStringAsFixed(0)}/100',
+                style: AppTypography.mono(size: 15, weight: FontWeight.w700, color: AppColors.accentViolet),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AiSummaryCard extends StatelessWidget {
+  const _AiSummaryCard({required this.summary});
+  final String summary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.accentCyan.withValues(alpha: 0.08),
+            AppColors.accentViolet.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: AppRadii.brMd,
+        border: Border.all(color: AppColors.borderStrong),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accentCyan.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome_rounded, size: 16, color: AppColors.accentCyan),
+              const SizedBox(width: 8),
+              Text(
+                'AI SUMMARY',
+                style: AppTypography.eyebrow(color: AppColors.accentCyan),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            summary,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  height: 1.4,
+                  color: AppColors.textPrimary,
+                ),
+          ),
+        ],
+      ),
     );
   }
 }

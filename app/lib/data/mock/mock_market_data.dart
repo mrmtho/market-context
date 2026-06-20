@@ -752,17 +752,43 @@ class MockMarketData {
       (EventCategory.geopolitical, ImpactDirection.negative,
           'Geopolitical tensions rattle risk assets',
           'A flare-up in global tensions drove a broad risk-off move.'),
+      (EventCategory.secFiling, ImpactDirection.neutral,
+          'Form 10-K Annual Report Filed',
+          'The annual report was submitted to the SEC, highlighting updated risk factors and capital structure.'),
+      (EventCategory.secFiling, ImpactDirection.positive,
+          'Form 4: Insider buying activity detected',
+          'SEC filing shows senior executives acquired significant shares in the open market, indicating confidence.'),
+      (EventCategory.youtube, ImpactDirection.positive,
+          'Deep-dive analysis: AI growth narrative',
+          'Prominent financial creator uploaded a visual analysis explaining the long-term margin potential.'),
+      (EventCategory.youtube, ImpactDirection.neutral,
+          'Is this valuation bubble territory?',
+          'A popular macro analyst posted a video breaking down historical P/E multiples vs current yields.'),
+      (EventCategory.podcast, ImpactDirection.neutral,
+          'Macro trends and tech outlook podcast',
+          'Industry veterans discussed supply chain dynamics and interest rate sensitivities affecting the stock.'),
+      (EventCategory.community, ImpactDirection.positive,
+          'Retail investor sentiment surges',
+          'Forum discussions highlight high call option volume and bullish retail consensus around upcoming product release.'),
     ];
 
-    // Spread ~10 events across the last 18 months.
-    for (var i = 0; i < 10; i++) {
+    // Spread ~16 events across the last 18 months.
+    for (var i = 0; i < 16; i++) {
       final t = templates[rng.nextInt(templates.length)];
       final daysAgo = 20 + rng.nextInt(540);
       out.add(NarrativeEvent(
         id: '$id-evt-$i',
         date: now.subtract(Duration(days: daysAgo)),
         title: t.$3,
-        source: ['Bloomberg', 'Reuters', 'WSJ', 'FT', 'CNBC'][rng.nextInt(5)],
+        source: t.$1 == EventCategory.youtube
+            ? 'YouTube'
+            : t.$1 == EventCategory.podcast
+                ? 'Podcast Feed'
+                : t.$1 == EventCategory.secFiling
+                    ? 'SEC EDGAR'
+                    : t.$1 == EventCategory.community
+                        ? 'Reddit / X'
+                        : ['Bloomberg', 'Reuters', 'WSJ', 'FT', 'CNBC'][rng.nextInt(5)],
         category: t.$1,
         impact: t.$2,
         confidence: 0.5 + rng.nextDouble() * 0.45,
@@ -771,6 +797,45 @@ class MockMarketData {
     }
     out.sort((a, b) => b.date.compareTo(a.date));
     return out;
+  }
+
+  /// Returns the historical background metric values aligned with the price points.
+  List<double> overlayValues(String id, List<PricePoint> points, ChartOverlayType type) {
+    if (type == ChartOverlayType.none) return const [];
+    return points.map((p) {
+      switch (type) {
+        case ChartOverlayType.eps:
+          final funds = fundamentalsAt(id, p.date);
+          if (funds.isEmpty) return 0.0;
+          return funds.firstWhere((m) => m.id == 'eps', orElse: () => funds.first).value;
+        case ChartOverlayType.pe:
+          final vals = valuationAt(id, p.date);
+          if (vals.isEmpty) return 0.0;
+          return vals.firstWhere((m) => m.id == 'pe', orElse: () => vals.first).value;
+        case ChartOverlayType.revenue:
+          final funds = fundamentalsAt(id, p.date);
+          if (funds.isEmpty) return 0.0;
+          return funds.firstWhere((m) => m.id == 'rev', orElse: () => funds.first).value;
+        case ChartOverlayType.inflation:
+          final macro = macroAt(p.date);
+          if (macro.isEmpty) return 0.0;
+          return macro.firstWhere((m) => m.id == 'cpi', orElse: () => macro.first).value;
+        case ChartOverlayType.interestRate:
+          final macro = macroAt(p.date);
+          if (macro.isEmpty) return 0.0;
+          return macro.firstWhere((m) => m.id == 'ffr', orElse: () => macro.first).value;
+        case ChartOverlayType.gdp:
+          final macro = macroAt(p.date);
+          if (macro.isEmpty) return 0.0;
+          return macro.firstWhere((m) => m.id == 'gdp', orElse: () => macro.first).value;
+        case ChartOverlayType.unemployment:
+          final macro = macroAt(p.date);
+          if (macro.isEmpty) return 0.0;
+          return macro.firstWhere((m) => m.id == 'unemp', orElse: () => macro.first).value;
+        default:
+          return 0.0;
+      }
+    }).toList();
   }
 
   // ---- Scenario explorer ---------------------------------------------------

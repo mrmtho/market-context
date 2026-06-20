@@ -104,4 +104,40 @@ void main() {
     // Overlay should be gone
     expect(find.text('Search ticker, company, sector…'), findsNothing);
   });
+
+  testWidgets('AssetDashboardScreen displays V2 details (Context Score, AI Summary, Overlays)', (tester) async {
+    ignoreOverflowErrors();
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1.0;
+
+    await tester.pumpWidget(createTestableWidget());
+    await tester.pumpAndSettle();
+
+    // Open search overlay and search for NVDA
+    await tester.tap(find.text('Search markets'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'NVDA');
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+
+    // Click the NVDA result row to navigate to dashboard
+    await tester.tap(find.textContaining('NVIDIA Corporation'));
+    await tester.pumpAndSettle();
+
+    // Verify Context Score is displayed
+    expect(find.text('CONTEXT SCORE'), findsOneWidget);
+    expect(find.textContaining('/100'), findsOneWidget);
+
+    // Verify AI Summary card is displayed
+    expect(find.text('AI SUMMARY'), findsOneWidget);
+
+    // Verify Background Overlay chips are displayed
+    expect(find.text('BACKGROUND OVERLAY'), findsOneWidget);
+    expect(find.widgetWithText(MCChip, 'Fed Rate'), findsOneWidget);
+    expect(find.widgetWithText(MCChip, 'Inflation'), findsOneWidget);
+  });
 }

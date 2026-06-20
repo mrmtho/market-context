@@ -5,7 +5,9 @@ import '../../../core/analytics/analytics_service.dart';
 import '../../../core/layout/breakpoints.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../data/mock/mock_market_data.dart';
 import '../../../data/models/enums.dart';
 import '../../../data/providers/providers.dart';
 import '../../../ui/components/change_indicator.dart';
@@ -34,7 +36,12 @@ class PriceTimelineCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final range = ref.watch(selectedRangeProvider(symbol));
+    final overlay = ref.watch(chartOverlayProvider(symbol));
     final history = ref.watch(priceHistoryProvider((id: symbol, range: range)));
+    final overlayPoints = history.maybeWhen(
+      data: (series) => MockMarketData.instance.overlayValues(symbol, series.points, overlay),
+      orElse: () => const <double>[],
+    );
     final events = ref.watch(eventsProvider(symbol)).valueOrNull ?? const [];
     final selectedDate = ref.watch(selectedDateProvider(symbol));
     final isMobile = context.isMobile;
@@ -85,6 +92,8 @@ class PriceTimelineCard extends ConsumerWidget {
                   accent: accent,
                   events: events,
                   selectedDate: selectedDate,
+                  overlayType: overlay,
+                  overlayPoints: overlayPoints,
                   onSelectDate: (date) {
                     ref.read(selectedDateProvider(symbol).notifier).state = date;
                     ref.read(analyticsProvider).log(
@@ -97,6 +106,31 @@ class PriceTimelineCard extends ConsumerWidget {
             ),
           ),
           AppSpacing.vGapLg,
+          AppSpacing.vGapLg,
+          Text('BACKGROUND OVERLAY', style: AppTypography.eyebrow()),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final o in ChartOverlayType.values)
+                MCChip(
+                  label: o.label,
+                  icon: o.icon,
+                  selected: o == overlay,
+                  onTap: () {
+                    ref.read(chartOverlayProvider(symbol).notifier).state = o;
+                    ref.read(analyticsProvider).log(
+                      'chart_overlay_changed',
+                      {'ticker': symbol, 'overlay': o.label},
+                    );
+                  },
+                ),
+            ],
+          ),
+          AppSpacing.vGapLg,
+          Text('TIME RANGE', style: AppTypography.eyebrow()),
+          const SizedBox(height: 8),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
